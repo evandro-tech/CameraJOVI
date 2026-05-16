@@ -2,8 +2,24 @@
 
 const openOverlay = (id) => {
     const el = document.getElementById(id);
+    if (!el) return;
     el.classList.add('show');
     
+    // Sincronizar botão de ação com o formato selecionado ao abrir
+    const labels = el.querySelectorAll('.student-card-label');
+    labels.forEach(label => {
+        if (label.textContent.toUpperCase().includes('FORMATO')) {
+            const parentCard = label.closest('.student-card');
+            const activeTag = parentCard ? parentCard.querySelector('.student-tag.active-tag') : null;
+            const primaryBtn = el.querySelector('.student-action-btn.primary');
+            
+            if (activeTag && primaryBtn && primaryBtn.textContent.includes('Salvar')) {
+                const format = activeTag.textContent.replace('.', '').trim().toUpperCase();
+                primaryBtn.textContent = `Salvar ${format}`;
+            }
+        }
+    });
+
     // Simulação de carregamento de conteúdo IA
     if (id === 'overlay-resumir') {
         const skeleton = el.querySelector('.student-skeleton-lines');
@@ -101,6 +117,16 @@ document.addEventListener('click', (e) => {
     if (isSingleChoice) {
         tag.closest('.student-tags').querySelectorAll('.student-tag').forEach(t => t.classList.remove('active-tag'));
         tag.classList.add('active-tag');
+
+        // Atualizar o texto do botão de ação se for o seletor de formato
+        if (labelText.includes('FORMATO')) {
+            const overlay = tag.closest('.student-overlay');
+            const primaryBtn = overlay ? overlay.querySelector('.student-action-btn.primary') : null;
+            if (primaryBtn && primaryBtn.textContent.includes('Salvar')) {
+                const format = tag.textContent.replace('.', '').trim().toUpperCase();
+                primaryBtn.textContent = `Salvar ${format}`;
+            }
+        }
     } else {
         // Seleção múltipla para matérias
         tag.classList.toggle('active-tag');
@@ -128,7 +154,6 @@ document.addEventListener('click', (e) => {
     if (window.showNotification) {
         let message = 'Ação realizada!';
         if (actionText === 'Exportar para Google Docs') message = 'Exportação concluída!';
-        else if (actionText === 'Salvar PDF') message = 'Salvo com sucesso!';
         else if (actionText === 'Compartilhar') message = 'Compartilhado com sucesso!';
         else if (actionText.includes('Salvar')) message = 'Salvo com sucesso!';
         else if (actionText.includes('Exportar')) message = 'Exportação iniciada...';
